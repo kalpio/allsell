@@ -1,0 +1,36 @@
+package user
+
+templ Register() {
+	<div>
+		<form action="/user/register" method="post">
+			<div>Register new user</div>
+			<div>
+				<label>
+					User name:
+					<input type="text" name="username" placeholder="Your user name"/>
+				</label>
+			</div>
+			<div>
+				<label>
+					Email:
+					<input type="email" name="email" placeholder="Your email address"/>
+				</label>
+			</div>
+			<div>
+				<label>
+					Password:
+					<input type="password" name="password" placeholder="Your password"/>
+				</label>
+			</div>
+			<div>
+				<label>
+					Confirm password:
+					<input type="password" name="confirm_password" placeholder="Confirm your password"/>
+				</label>
+			</div>
+			<div>
+				<button type="submit">Register</button>
+			</div>
+		</form>
+	</div>
+}
