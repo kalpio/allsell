@@ -30,7 +30,8 @@ func (u UserHandler) LoginPost(c echo.Context) error {
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 
-	if username == "admin" && password == "admin" {
+	result, usr := u.userService.Login(c.Request().Context(), username, password)
+	if result.Success() {
 		sess, err := session.Get("session", c)
 		if err != nil {
 			return err
@@ -40,15 +41,16 @@ func (u UserHandler) LoginPost(c echo.Context) error {
 			Path:     "/",
 			MaxAge:   86400 * 7,
 			HttpOnly: true,
+			Secure:   false,
 		}
 
-		sess.Values["username"] = username
+		sess.Values["username"] = usr.Name
 		if err := sess.Save(c.Request(), c.Response()); err != nil {
 			return err
 		}
 	}
 
-	return c.Redirect(http.StatusMovedPermanently, "/")
+	return c.Redirect(http.StatusSeeOther, "/")
 }
 
 func (u UserHandler) RegisterGet(c echo.Context) error {
