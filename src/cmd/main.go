@@ -19,6 +19,9 @@ func main() {
 	app.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 	app.Use(Authorize())
 
+	app.Static("/assets", "./src/views/assets")
+	app.StaticFS()
+
 	dsn := "file:./tmp/data.db?cache=shared&mode=rwc"
 	migrationConfig := migrations.MigrationConfig{
 		Driver:           "sqlite",

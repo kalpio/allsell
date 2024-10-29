@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
-	"github.com/kalpio/allsell/src/models"
 	"github.com/kalpio/allsell/src/services"
 	"github.com/kalpio/allsell/src/types"
 	"github.com/kalpio/allsell/src/views/user"
@@ -44,7 +43,7 @@ func (u UserHandler) LoginPost(c echo.Context) error {
 			Secure:   false,
 		}
 
-		sess.Values["username"] = usr.Name
+		sess.Values["username"] = usr.Unwrap().Name
 		if err := sess.Save(c.Request(), c.Response()); err != nil {
 			return err
 		}
@@ -67,7 +66,7 @@ func (u UserHandler) RegisterPost(c echo.Context) error {
 		return c.HTML(http.StatusBadRequest, err.Error())
 	}
 
-	usr := models.NewUser(ur.UserName, ur.Email, ur.Password)
+	usr := types.NewUser(ur.UserName, ur.Email, ur.Password)
 	if err := u.userService.Register(c.Request().Context(), usr); err != nil {
 		return c.HTML(http.StatusInternalServerError, err.Error())
 	}

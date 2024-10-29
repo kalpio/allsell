@@ -3,10 +3,11 @@
 import (
 	"context"
 	"fmt"
+
 	"github.com/kalpio/allsell/src/types"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/kalpio/allsell/src/models"
+	"github.com/kalpio/option"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,7 +21,7 @@ func NewUserService(db *sqlx.DB) UserService {
 	return UserService{db}
 }
 
-func (u UserService) Register(ctx context.Context, user models.User) error {
+func (u UserService) Register(ctx context.Context, user types.User) error {
 	passwordHash, err := hashPassword(user.Password)
 	if err != nil {
 		return err
@@ -33,18 +34,18 @@ func (u UserService) Register(ctx context.Context, user models.User) error {
 	return nil
 }
 
-func (u UserService) Login(ctx context.Context, username, password string) (types.LoginResult, *models.User) {
-	user := models.User{}
+func (u UserService) Login(ctx context.Context, username, password string) (types.LoginResult, option.Option[types.User]) {
+	user := types.User{}
 	sql := "select * from users where name = ? limit 1;"
 	if err := u.db.QueryRowxContext(ctx, sql, username).StructScan(&user); err != nil {
-		return types.LoginFailed(types.AuthenticationFailed), nil
+		return types.LoginFailed(types.AuthenticationFailed), option.None[types.User]()
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return types.LoginFailed(types.AuthenticationFailed), nil
+		return types.LoginFailed(types.AuthenticationFailed), option.None[types.User]()
 	}
 
-	return types.LoginSuccess(), &user
+	return types.LoginSuccess(), option.Some(user)
 }
 
 func hashPassword(password string) (string, error) {
