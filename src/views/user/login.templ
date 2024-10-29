@@ -1,21 +1,26 @@
 package user
 
-templ Login() {
-	<div>
-		<form method="post" action="/user/login">
-			<label>
-				User name:
-				<input type="text" name="username" value="" placeholder="Insert user name"/>
-			</label>
-			<label>
-				Password:
-				<input type="password" name="password" value="" placeholder="Insert password"/>
-			</label>
-			<input type="submit" value="AAA" />
+import "github.com/kalpio/allsell/src/views/layout"
 
-			<div>
-			    <a href="/user/register">Register new account</a>
-			</div>
-		</form>
-	</div>
+templ Login() {
+	@layout.Login() {
+		<div class="container">
+			<form method="post" action="/user/login">
+			<div class="mb-3">
+				<label for="username" class="form-label">
+					User name:
+				</label>
+					<input type="text" id="username" name="username" value="" placeholder="Insert user name" class="form-control"/>
+				</div>
+				<label>
+					Password:
+					<input type="password" name="password" value="" placeholder="Insert password"/>
+				</label>
+				<input type="submit" value="AAA"/>
+				<div>
+					<a href="/user/register">Register new account</a>
+				</div>
+			</form>
+		</div>
+	}
 }
