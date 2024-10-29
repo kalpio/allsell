@@ -20,7 +20,7 @@ func main() {
 	app.Use(Authorize())
 
 	app.Static("/assets", "./src/views/assets")
-	app.StaticFS()
+	//app.StaticFS("/")
 
 	dsn := "file:./tmp/data.db?cache=shared&mode=rwc"
 	migrationConfig := migrations.MigrationConfig{

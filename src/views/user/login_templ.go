@@ -43,7 +43,7 @@ func Login() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"container\"><form method=\"post\" action=\"/user/login\"><div class=\"mb-3\"><label for=\"username\" class=\"form-label\">User name:</label> <input type=\"text\" id=\"username\" name=\"username\" value=\"\" placeholder=\"Insert user name\" class=\"form-control\"></div><label>Password: <input type=\"password\" name=\"password\" value=\"\" placeholder=\"Insert password\"></label> <input type=\"submit\" value=\"AAA\"><div><a href=\"/user/register\">Register new account</a></div></form></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"container justify-content-center\"><div class=\"row\"><div class=\"col-4\"></div><div class=\"col-4 border mt-xxl-5 bg-light-subtle shadow-lg p-4 rounded-3\"><h3>Login</h3><form method=\"post\" action=\"/user/login\"><div class=\"mb-3 mt-3\"><input type=\"text\" id=\"username\" name=\"username\" value=\"\" placeholder=\"Username\" class=\"form-control\"></div><div class=\"mb-3\"><input type=\"password\" id=\"password\" name=\"password\" value=\"\" placeholder=\"Password\" class=\"form-control\"></div><div class=\"mb-3\"><input type=\"submit\" class=\"btn btn-outline-primary\" value=\"Log in\"></div><div class=\"mb-3 justify-content-center\"><span>Don't have an account? <a href=\"/user/register\" class=\"link-primary\">Sign up</a></span></div></form></div><div class=\"col-4\"></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
