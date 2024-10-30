@@ -52,6 +52,20 @@ func (u UserHandler) LoginPost(c echo.Context) error {
 	return c.Redirect(http.StatusSeeOther, "/")
 }
 
+func (u UserHandler) LogoutGet(c echo.Context) error {
+	sess, err := session.Get("session", c)
+	if err != nil {
+		return err
+	}
+
+	sess.Options.MaxAge = -1
+	if err = sess.Save(c.Request(), c.Response()); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusSeeOther, "/")
+}
+
 func (u UserHandler) RegisterGet(c echo.Context) error {
 	return render(c, user.Register())
 }

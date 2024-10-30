@@ -40,6 +40,7 @@ func main() {
 	app.POST("/user/login", userHandler.LoginPost)
 	app.GET("/user/register", userHandler.RegisterGet)
 	app.POST("/user/register", userHandler.RegisterPost)
+	app.GET("/user/logout", userHandler.LogoutGet)
 	app.GET("/", homeHandler.IndexGet)
 
 	app.Logger.Fatal(app.Start(":1234"))
