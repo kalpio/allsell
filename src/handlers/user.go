@@ -5,8 +5,8 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
 	"github.com/kalpio/allsell/src/services"
-	"github.com/kalpio/allsell/src/types"
-	"github.com/kalpio/allsell/src/views/user"
+	"github.com/kalpio/allsell/src/types/user"
+	views "github.com/kalpio/allsell/src/views/user"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -22,7 +22,7 @@ func NewUserHandler(db *sqlx.DB) UserHandler {
 }
 
 func (u UserHandler) LoginGet(c echo.Context) error {
-	return render(c, user.Login())
+	return render(c, views.Login())
 }
 
 func (u UserHandler) LoginPost(c echo.Context) error {
@@ -67,11 +67,11 @@ func (u UserHandler) LogoutGet(c echo.Context) error {
 }
 
 func (u UserHandler) RegisterGet(c echo.Context) error {
-	return render(c, user.Register())
+	return render(c, views.Register())
 }
 
 func (u UserHandler) RegisterPost(c echo.Context) error {
-	ur := types.UserRegister{}
+	ur := user.Register{}
 	if err := c.Bind(&ur); err != nil {
 		return c.HTML(http.StatusInternalServerError, fmt.Sprintf("%s", err))
 	}
@@ -80,7 +80,7 @@ func (u UserHandler) RegisterPost(c echo.Context) error {
 		return c.HTML(http.StatusBadRequest, err.Error())
 	}
 
-	usr := types.NewUser(ur.UserName, ur.Email, ur.Password)
+	usr := user.NewUser(ur.UserName, ur.Email, ur.Password)
 	if err := u.userService.Register(c.Request().Context(), usr); err != nil {
 		return c.HTML(http.StatusInternalServerError, err.Error())
 	}
