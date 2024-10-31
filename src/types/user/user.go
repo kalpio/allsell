@@ -15,10 +15,17 @@ type User struct {
 	Email              string       `json:"email" db:"email"`
 	Password           string       `json:"password" db:"password"`
 	LastPasswordChange *time.DbTime `json:"last_password_change" db:"last_password_change"`
+	LastLoginAt        *time.DbTime `json:"last_login_at" db:"last_login_at"`
 }
 
 func NewUser(name, email, password string) User {
-	return User{uuid.New(), name, email, password, time.Now()}
+	return User{
+		ID:                 uuid.New(),
+		Name:               name,
+		Email:              email,
+		Password:           password,
+		LastPasswordChange: time.Now(),
+		LastLoginAt:        nil}
 }
 
 type Register struct {

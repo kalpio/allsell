@@ -11,18 +11,19 @@ func init() {
 }
 
 func up0001(ctx context.Context, tx *sql.Tx) error {
-	sql := `CREATE TABLE users (
+	query := `CREATE TABLE users (
 id TEXT PRIMARY KEY,
 name TEXT NOT NULL UNIQUE,
 email TEXT NOT NULL UNIQUE,
 password TEXT,
-last_password_change TEXT);`
-	_, err := tx.ExecContext(ctx, sql)
+last_password_change TEXT,
+last_login_at TEXT);`
+	_, err := tx.ExecContext(ctx, query)
 	return err
 }
 
 func down0001(ctx context.Context, tx *sql.Tx) error {
-	sql := `DROP TABLE users;`
-	_, err := tx.ExecContext(ctx, sql)
+	query := `DROP TABLE users;`
+	_, err := tx.ExecContext(ctx, query)
 	return err
 }
