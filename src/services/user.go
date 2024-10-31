@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/kalpio/allsell/src/types/login"
+	"github.com/kalpio/allsell/src/types/time"
 
 	"github.com/kalpio/allsell/src/types/user"
 
@@ -27,8 +28,8 @@ func (u UserService) Register(ctx context.Context, user user.User) error {
 	if err != nil {
 		return err
 	}
-	sql := `insert into users (id, name, email, password) values (?, ?, ?, ?);`
-	if _, err := u.db.ExecContext(ctx, sql, user.ID.String(), user.Name, user.Email, passwordHash); err != nil {
+	sql := `insert into users (id, name, email, password, last_password_change) values (?, ?, ?, ?, ?);`
+	if _, err := u.db.ExecContext(ctx, sql, user.ID.String(), user.Name, user.Email, passwordHash, time.Now().ToDb()); err != nil {
 		return fmt.Errorf("user:register: failed to insert user to database %w", err)
 	}
 
@@ -47,6 +48,39 @@ func (u UserService) Login(ctx context.Context, username, password string) (logi
 	}
 
 	return login.LoginSuccess(), option.Some(usr)
+}
+
+func (u UserService) ChangePassword(ctx context.Context, username string, currentPassword, newPassword string) error {
+	wrappedUser, err := u.Get(ctx, username)
+	if err != nil || wrappedUser.IsNone() {
+		return err
+	}
+
+	usr := wrappedUser.Unwrap()
+	if err := bcrypt.CompareHashAndPassword([]byte(usr.Password), []byte(currentPassword)); err != nil {
+		return err
+	}
+
+	hash, err := hashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	sql := `update users set password = ?, last_password_change = ? where name = ?;`
+	if _, err := u.db.ExecContext(ctx, sql, hash, time.Now().ToDb(), usr.Name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u UserService) Get(ctx context.Context, username string) (option.Option[user.User], error) {
+	usr := user.User{}
+	sql := `select * from users where name = ? limit 1;`
+	if err := u.db.QueryRowxContext(ctx, sql, username).StructScan(&usr); err != nil {
+		return option.None[user.User](), err
+	}
+
+	return option.Some(usr), nil
 }
 
 func hashPassword(password string) (string, error) {

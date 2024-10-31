@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/gorilla/sessions"
 	"github.com/jmoiron/sqlx"
+	"github.com/kalpio/allsell/src/middleware"
 	"github.com/kalpio/allsell/src/services"
+	"github.com/kalpio/allsell/src/session"
 	"github.com/kalpio/allsell/src/types/user"
 	views "github.com/kalpio/allsell/src/views/user"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -31,20 +31,10 @@ func (u UserHandler) LoginPost(c echo.Context) error {
 
 	result, usr := u.userService.Login(c.Request().Context(), username, password)
 	if result.Success() {
-		sess, err := session.Get("session", c)
-		if err != nil {
-			return err
-		}
-
-		sess.Options = &sessions.Options{
-			Path:     "/",
-			MaxAge:   86400 * 7,
-			HttpOnly: true,
-			Secure:   false,
-		}
-
-		sess.Values["username"] = usr.Unwrap().Name
-		if err := sess.Save(c.Request(), c.Response()); err != nil {
+		if err := session.Set(c,
+			middleware.DefaultAuthorizationConfig.SessionKey,
+			usr.Unwrap().Name,
+			session.DefaultSessionOptions); err != nil {
 			return err
 		}
 	}
@@ -53,13 +43,7 @@ func (u UserHandler) LoginPost(c echo.Context) error {
 }
 
 func (u UserHandler) LogoutGet(c echo.Context) error {
-	sess, err := session.Get("session", c)
-	if err != nil {
-		return err
-	}
-
-	sess.Options.MaxAge = -1
-	if err = sess.Save(c.Request(), c.Response()); err != nil {
+	if err := session.Delete(c); err != nil {
 		return err
 	}
 
@@ -71,19 +55,43 @@ func (u UserHandler) RegisterGet(c echo.Context) error {
 }
 
 func (u UserHandler) RegisterPost(c echo.Context) error {
-	ur := user.Register{}
-	if err := c.Bind(&ur); err != nil {
+	register := user.Register{}
+	if err := c.Bind(&register); err != nil {
 		return c.HTML(http.StatusInternalServerError, fmt.Sprintf("%s", err))
 	}
 
-	if err := ur.Validate(); err != nil {
+	if err := register.Validate(); err != nil {
 		return c.HTML(http.StatusBadRequest, err.Error())
 	}
 
-	usr := user.NewUser(ur.UserName, ur.Email, ur.Password)
+	usr := user.NewUser(register.UserName, register.Email, register.Password)
 	if err := u.userService.Register(c.Request().Context(), usr); err != nil {
 		return c.HTML(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.HTML(http.StatusOK, usr.Name)
+}
+
+func (u UserHandler) ChangePasswordGet(c echo.Context) error {
+	value, _ := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
+	usrValue, err := u.userService.Get(c.Request().Context(), value.UnwrapOr(""))
+	if err != nil || usrValue.IsNone() {
+		return err
+	}
+	usr := usrValue.Unwrap()
+
+	return render(c, views.ChangePassword(usr.Name, usr.Email))
+}
+
+func (u UserHandler) ChangePasswordPost(c echo.Context) error {
+	value, _ := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
+	changePassword := user.ChangePassword{}
+	if err := c.Bind(&changePassword); err != nil {
+		return c.HTML(http.StatusInternalServerError, fmt.Sprintf("%s", err))
+	}
+	if err := changePassword.Validate(); err != nil {
+		return c.HTML(http.StatusInternalServerError, err.Error())
+	}
+
+	return u.userService.ChangePassword(c.Request().Context(), value.UnwrapOr(""), changePassword.CurrentPassword, changePassword.NewPassword)
 }

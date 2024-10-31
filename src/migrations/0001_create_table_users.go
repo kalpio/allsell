@@ -15,7 +15,8 @@ func up0001(ctx context.Context, tx *sql.Tx) error {
 id TEXT PRIMARY KEY,
 name TEXT NOT NULL UNIQUE,
 email TEXT NOT NULL UNIQUE,
-password TEXT);`
+password TEXT,
+last_password_change TEXT);`
 	_, err := tx.ExecContext(ctx, sql)
 	return err
 }
