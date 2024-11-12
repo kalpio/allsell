@@ -73,9 +73,9 @@ func (u UserHandler) RegisterPost(c echo.Context) error {
 }
 
 func (u UserHandler) ChangePasswordGet(c echo.Context) error {
-	value, _ := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
-	usrValue, err := u.userService.Get(c.Request().Context(), value.UnwrapOr(""))
-	if err != nil || usrValue.IsNone() {
+	value := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
+	usrValue := u.userService.Get(c.Request().Context(), value.UnwrapOr(""))
+	if isNone, err := usrValue.IsNone(); isNone {
 		return err
 	}
 	usr := usrValue.Unwrap()
@@ -84,7 +84,7 @@ func (u UserHandler) ChangePasswordGet(c echo.Context) error {
 }
 
 func (u UserHandler) ChangePasswordPost(c echo.Context) error {
-	value, _ := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
+	value := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
 	changePassword := user.ChangePassword{}
 	if err := c.Bind(&changePassword); err != nil {
 		return c.HTML(http.StatusInternalServerError, fmt.Sprintf("%s", err))
@@ -93,5 +93,18 @@ func (u UserHandler) ChangePasswordPost(c echo.Context) error {
 		return c.HTML(http.StatusInternalServerError, err.Error())
 	}
 
-	return u.userService.ChangePassword(c.Request().Context(), value.UnwrapOr(""), changePassword.CurrentPassword, changePassword.NewPassword)
+	return u.userService.ChangePassword(
+		c.Request().Context(),
+		value.UnwrapOr(""),
+		changePassword.CurrentPassword,
+		changePassword.NewPassword)
+}
+
+func (u UserHandler) ListGet(c echo.Context) error {
+	usersValue := u.userService.GetAll(c.Request().Context())
+	if isNone, err := usersValue.IsNone(); isNone {
+		return c.HTML(http.StatusInternalServerError, fmt.Sprintf("%s", err))
+	}
+
+	return render(c, views.List(usersValue.Unwrap()))
 }

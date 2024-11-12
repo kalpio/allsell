@@ -40,19 +40,19 @@ func (u UserService) Login(ctx context.Context, username, password string) (logi
 	usr := user.User{}
 	sql := `select * from users where name = ? limit 1;`
 	if err := u.db.QueryRowxContext(ctx, sql, username).StructScan(&usr); err != nil {
-		return login.LoginFailed(login.AuthenticationFailed), option.None[user.User]()
+		return login.LoginFailed(login.AuthenticationFailed), option.None[user.User](err)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(usr.Password), []byte(password)); err != nil {
-		return login.LoginFailed(login.AuthenticationFailed), option.None[user.User]()
+		return login.LoginFailed(login.AuthenticationFailed), option.None[user.User](err)
 	}
 
 	return login.LoginSuccess(), option.Some(usr)
 }
 
 func (u UserService) ChangePassword(ctx context.Context, username string, currentPassword, newPassword string) error {
-	wrappedUser, err := u.Get(ctx, username)
-	if err != nil || wrappedUser.IsNone() {
+	wrappedUser := u.Get(ctx, username)
+	if isNone, err := wrappedUser.IsNone(); isNone {
 		return err
 	}
 
@@ -73,14 +73,28 @@ func (u UserService) ChangePassword(ctx context.Context, username string, curren
 	return nil
 }
 
-func (u UserService) Get(ctx context.Context, username string) (option.Option[user.User], error) {
+func (u UserService) Get(ctx context.Context, username string) option.Option[user.User] {
 	usr := user.User{}
 	sql := `select * from users where name = ? limit 1;`
 	if err := u.db.QueryRowxContext(ctx, sql, username).StructScan(&usr); err != nil {
-		return option.None[user.User](), err
+		return option.None[user.User](err)
 	}
 
-	return option.Some(usr), nil
+	return option.Some(usr)
+}
+
+func (u UserService) GetAll(ctx context.Context) option.Option[[]user.User] {
+	var users []user.User
+	query := `select * from users`
+	rows, err := u.db.QueryxContext(ctx, query)
+	if err != nil {
+		return option.None[[]user.User](err)
+	}
+	if err = rows.StructScan(&users); err != nil {
+		return option.None[[]user.User](err)
+	}
+
+	return option.Some(users)
 }
 
 func hashPassword(password string) (string, error) {

@@ -10,7 +10,7 @@ import (
 type HomeHandler struct{}
 
 func (h HomeHandler) IndexGet(c echo.Context) error {
-	value, _ := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
+	value := session.Get[string](c, middleware.DefaultAuthorizationConfig.SessionKey)
 	userName := value.UnwrapOr("Unknown")
 
 	return render(c, home.IndexGet(userName))

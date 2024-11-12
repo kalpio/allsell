@@ -44,11 +44,12 @@ func AuthorizeWithConfig(config AuthorizationConfig) echo.MiddlewareFunc {
 			var login = func(c echo.Context) error {
 				return c.Redirect(http.StatusMovedPermanently, "/user/login")
 			}
-			value, err := session.Get[string](c, config.SessionKey)
-			if err != nil {
+			value := session.Get[string](c, config.SessionKey)
+			if isNone, _ := value.IsNone(); isNone {
+				// log err
 				return login(c)
 			}
-			if value.IsNone() || len(value.Unwrap()) == 0 {
+			if len(value.Unwrap()) == 0 {
 				return login(c)
 			}
 

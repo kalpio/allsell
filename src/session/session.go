@@ -16,20 +16,20 @@ var DefaultSessionOptions = &sessions.Options{
 	Secure:   false,
 }
 
-func Get[T any](c echo.Context, key string) (option.Option[T], error) {
+func Get[T any](c echo.Context, key string) option.Option[T] {
 	sess, err := session.Get(sessionKey, c)
 	if err != nil {
-		return option.None[T](), err
+		return option.None[T](err)
 	}
 
 	value, ok := sess.Values[key]
 	if !ok {
-		return option.None[T](), err
+		return option.None[T](err)
 	}
 
 	v := value.(T)
 
-	return option.Some(v), nil
+	return option.Some(v)
 }
 
 func Set(c echo.Context, key string, value any, options *sessions.Options) error {
