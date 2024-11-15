@@ -1,6 +1,7 @@
 ﻿package middleware
 
 import (
+	"context"
 	"github.com/kalpio/allsell/src/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -53,6 +54,7 @@ func AuthorizeWithConfig(config AuthorizationConfig) echo.MiddlewareFunc {
 				return login(c)
 			}
 
+			c.SetRequest(c.Request().WithContext(context.WithValue(c.Request().Context(), "UserName", value.Unwrap())))
 			return next(c)
 		}
 	}

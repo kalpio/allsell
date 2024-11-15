@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+var AdministratorName = "admin"
+
 type User struct {
 	ID                 uuid.UUID    `json:"id" db:"id"`
 	Name               string       `json:"name" db:"name"`

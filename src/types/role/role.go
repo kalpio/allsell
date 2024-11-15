@@ -1,6 +1,9 @@
 package role
 
-import "github.com/google/uuid"
+import (
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/google/uuid"
+)
 
 var (
 	Administrator = NewRole("Administrator")
@@ -17,6 +20,11 @@ func NewRole(name string) *Role {
 		ID:   uuid.New(),
 		Name: name,
 	}
+}
+
+func (r Role) Validate() error {
+	return validation.ValidateStruct(&r,
+		validation.Field(&r.Name, validation.Required, validation.Length(2, 50)))
 }
 
 type UserRole struct {

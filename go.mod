@@ -3,6 +3,7 @@ module github.com/kalpio/allsell
 go 1.23.1
 
 require (
+	github.com/Rhymond/go-money v1.0.14
 	github.com/a-h/templ v0.2.778
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/uuid v1.6.0
