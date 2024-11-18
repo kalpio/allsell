@@ -8,6 +8,10 @@ type DbTime struct {
 	value time.Time
 }
 
+func New(t time.Time) *DbTime {
+	return &DbTime{value: t}
+}
+
 func Now() *DbTime {
 	return &DbTime{value: time.Now()}
 }

@@ -87,6 +87,11 @@ func (u UserService) GetAll(ctx context.Context) option.Option[[]user.User] {
 	var users []user.User
 	query := `select * from users`
 	rows, err := u.db.QueryxContext(ctx, query)
+	defer func() {
+		if err := rows.Close(); err != nil {
+			// log
+		}
+	}()
 	if err != nil {
 		return option.None[[]user.User](err)
 	}
