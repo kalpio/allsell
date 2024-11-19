@@ -30,6 +30,7 @@ func main() {
 
 	userHandler := handlers.NewUserHandler(db)
 	homeHandler := handlers.HomeHandler{}
+	auctionHandler := handlers.NewAuctionsHandler(db)
 
 	app.GET("/user/login", userHandler.LoginGet)
 	app.POST("/user/login", userHandler.LoginPost)
@@ -40,6 +41,12 @@ func main() {
 	app.POST("/user/change-password", userHandler.ChangePasswordPost)
 
 	app.GET("/", homeHandler.IndexGet)
+
+	app.GET("/auctions", auctionHandler.Index)
+
+	api := app.Group("api")
+	api.GET("/auctions", auctionHandler.ListGet)
+	api.POST("/auctions", auctionHandler.CreatePost)
 
 	app.Logger.Fatal(app.Start(":1234"))
 }

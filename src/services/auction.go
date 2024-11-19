@@ -17,7 +17,7 @@ func NewAuctionService(db *sqlx.DB) AuctionService {
 	return AuctionService{db: db}
 }
 
-func (srv AuctionService) List(ctx context.Context, pageIndex int) option.Option[[]auction.Auction] {
+func (srv AuctionService) List(ctx context.Context, pageIndex int) option.Option[[]*auction.Auction] {
 	query := `select * from auctions limit :number offset :starting_row;`
 	rows, err := srv.db.NamedQueryContext(ctx, query, map[string]interface{}{"number": pageSize, "starting_row": pageSize * pageIndex})
 	defer func() {
@@ -27,28 +27,28 @@ func (srv AuctionService) List(ctx context.Context, pageIndex int) option.Option
 	}()
 
 	if err != nil {
-		return option.None[[]auction.Auction](err)
+		return option.None[[]*auction.Auction](err)
 	}
 
-	var result []auction.Auction
+	var result []*auction.Auction
 	for rows.Next() {
 		auc := &auction.Auction{}
 		if err = rows.StructScan(&auc); err != nil {
-			return option.None[[]auction.Auction](err)
+			return option.None[[]*auction.Auction](err)
 		}
-		result = append(result, *auc)
+		result = append(result, auc)
 	}
 
 	return option.Some(result)
 }
 
-func (srv AuctionService) Create(ctx context.Context, request auction.CreateActionRequest) option.Option[auction.Auction] {
+func (srv AuctionService) Create(ctx context.Context, request auction.CreateActionRequest) option.Option[*auction.Auction] {
 	query := `insert into auctions (id, title, expire_at, category, price)
 values (:id, :title, :expire_at, :category, :price);`
 
 	auc := auction.NewAuction(request.Title, request.ExpireAt, request.Category, request.Price)
 	if _, err := srv.db.ExecContext(ctx, query, auc); err != nil {
-		return option.None[auction.Auction](err)
+		return option.None[*auction.Auction](err)
 	}
 
 	return option.Some(auc)

@@ -1,0 +1,27 @@
+package auctions
+
+import (
+	"github.com/kalpio/allsell/src/types/auction"
+	"github.com/kalpio/allsell/src/views/layout"
+)
+
+templ Index(values []*auction.Auction) {
+	@layout.Layout() {
+		<div class="col-md-12">
+			for _, v := range values {
+				<a href="/auctions/{v.ID}">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="card">
+								<div class="card-header">
+									{ v.Title }
+								</div>
+								<div class="card-body"></div>
+							</div>
+						</div>
+					</div>
+				</a>
+			}
+		</div>
+	}
+}

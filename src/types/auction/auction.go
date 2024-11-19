@@ -5,6 +5,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 	allselltime "github.com/kalpio/allsell/src/types/time"
+	"sync"
 	"time"
 )
 
@@ -14,14 +15,17 @@ type Auction struct {
 	ExpireAt allselltime.DbTime `json:"expire_at" db:"expire_at"`
 	Category string             `json:"category" db:"category"`
 	Price    money.Money        `json:"price" db:"price"`
+	Images   []Image            `json:"images"`
+
+	mu sync.RWMutex
 }
 
 func NewAuction(
 	title string,
 	expireAt time.Time,
 	category string,
-	price money.Money) Auction {
-	return Auction{
+	price money.Money) *Auction {
+	return &Auction{
 		ID:       uuid.New(),
 		Title:    title,
 		ExpireAt: *allselltime.New(expireAt),
@@ -30,7 +34,14 @@ func NewAuction(
 	}
 }
 
-func (a Auction) Validate() error {
+func (a *Auction) AddImage(image Image) {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	a.Images = append(a.Images, image)
+}
+
+func (a *Auction) Validate() error {
 	return validation.ValidateStruct(&a,
 		validation.Field(&a.Title, validation.Required, validation.Length(1, 256)),
 		validation.Field(&a.ExpireAt, validation.Required),
