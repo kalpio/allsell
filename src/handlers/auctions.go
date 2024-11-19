@@ -6,6 +6,7 @@ import (
 	"github.com/kalpio/allsell/src/types/auction"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 )
 
 type AuctionsHandler struct {
@@ -18,7 +19,15 @@ func NewAuctionsHandler(db *sqlx.DB) AuctionsHandler {
 }
 
 func (h AuctionsHandler) ListGet(c echo.Context) error {
-	return nil
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	values := h.auctionService.List(c.Request().Context(), page)
+	if isNone, err := values.IsNone(); isNone {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	return c.JSON(http.StatusOK, values.Unwrap())
 }
 
 func (h AuctionsHandler) CreateGet(c echo.Context) error {
