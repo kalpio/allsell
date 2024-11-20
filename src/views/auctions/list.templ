@@ -1,0 +1,38 @@
+package auctions
+
+import (
+	"fmt"
+	"github.com/kalpio/allsell/src/types/auction"
+)
+
+func isLastCard(index, values int) bool {
+	return index == values
+}
+
+templ List(values []*auction.Auction, page int) {
+	for index, v := range values {
+		@auction_card(v, isLastCard(index, len(values)-1), page)
+	}
+}
+
+templ auction_card(v *auction.Auction, isLastCard bool, page int) {
+	<a
+		href={ templ.URL(fmt.Sprintf("/auctions/%s", v.ID)) }
+		class="mt-2 ms-1"
+	>
+		<div
+			class="card shadow"
+			if isLastCard {
+				hx-get={ string(templ.URL(fmt.Sprintf("/auctions/list?page=%d", page))) }
+				hx-trigger="revealed"
+				hx-swap="beforeend"
+				hx-target="#list-of-auctions"
+			}
+		>
+			<div class="card-header">
+				{ v.Title }
+			</div>
+			<div class="card-body"></div>
+		</div>
+	</a>
+}

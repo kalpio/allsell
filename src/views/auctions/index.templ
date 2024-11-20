@@ -1,27 +1,28 @@
 package auctions
 
-import (
-	"github.com/kalpio/allsell/src/types/auction"
-	"github.com/kalpio/allsell/src/views/layout"
-)
+import "github.com/kalpio/allsell/src/views/layout"
 
-templ Index(values []*auction.Auction) {
+templ Index() {
 	@layout.Layout() {
-		<div class="col-md-12">
-			for _, v := range values {
-				<a href="/auctions/{v.ID}">
-					<div class="row">
-						<div class="col-md-6">
-							<div class="card">
-								<div class="card-header">
-									{ v.Title }
-								</div>
-								<div class="card-body"></div>
-							</div>
-						</div>
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="btn-group-sm">
+						<button hx-get={ string(templ.URL("/auctions/create")) } hx-target="#content" hx-replace-url="true" class="btn btn-primary">Create new auction</button>
 					</div>
-				</a>
-			}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-4">Filters</div>
+				<div
+					id="list-of-auctions"
+					class="col-sm-8"
+					hx-get={ string(templ.URL("/auctions/list?page=0")) }
+					hx-target="this"
+					hx-swap="beforeend"
+					hx-trigger="load"
+				></div>
+			</div>
 		</div>
 	}
 }

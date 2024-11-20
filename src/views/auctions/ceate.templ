@@ -1,0 +1,13 @@
+package auctions
+
+templ Create() {
+	<div class="container-sm">
+		<div class="row">
+			<div class="col-sm-12">
+				<form hx-post={ string(templ.URL("/auctions/create")) }>
+					<button type="submit">Create auction</button>
+				</form>
+			</div>
+		</div>
+	</div>
+}

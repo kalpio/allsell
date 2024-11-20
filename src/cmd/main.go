@@ -43,10 +43,8 @@ func main() {
 	app.GET("/", homeHandler.IndexGet)
 
 	app.GET("/auctions", auctionHandler.Index)
-
-	api := app.Group("api")
-	api.GET("/auctions", auctionHandler.ListGet)
-	api.POST("/auctions", auctionHandler.CreatePost)
+	app.GET("/auctions/create", auctionHandler.CreateGet)
+	app.GET("/auctions/list", auctionHandler.ListGet)
 
 	app.Logger.Fatal(app.Start(":1234"))
 }
